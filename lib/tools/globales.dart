@@ -15,7 +15,7 @@ int selectedEmotion = 0;
 int esperaVisemas = 0;
 Artboard? riveArtboard;
 bool hablando=false;
-String riv='nene';
+String riv='chica_rubia';
 int cara=0;
 String fileContent = '';
 

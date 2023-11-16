@@ -92,6 +92,7 @@ Emocion analizarSentimiento(String texto) {
     Emocion.Tristeza: 0,
     Emocion.Asco: 0,
     Emocion.MiedoInseguridad: 0,
+    Emocion.Pregunta: 0
   };
 
   // Convertir el texto a minúsculas para hacer coincidencias sin distinción de mayúsculas y minúsculas

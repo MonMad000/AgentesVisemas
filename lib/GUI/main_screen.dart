@@ -11,12 +11,16 @@ import 'package:rive/rive.dart';
 
 import '../tools/funciones.dart';
 import '../tools/manejoDeTextos.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class MainScreen extends StatelessWidget {
   const MainScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp, // Solo orientación vertical
+    ]);
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
       home: HomePage(),
@@ -180,8 +184,23 @@ class _HomePageState extends State<HomePage> {
                                 }),
                             suffixIcon: IconButton(
                               icon: const Icon(Icons.attach_file),
-                              onPressed: () {
-                                _openFileExplorer();
+                              onPressed: () async {
+                                // Verificar si el permiso ya fue concedido
+                                var status = await Permission.storage.status;
+                                if (status.isGranted) {
+                                  // El permiso ya fue concedido, puedes abrir el explorador de archivos
+                                  _openFileExplorer();
+                                } else {
+                                  // El permiso no fue concedido, solicitar permiso
+                                  var result = await Permission.storage.request();
+                                  if (result.isGranted) {
+                                    // El permiso fue concedido después de la solicitud, puedes abrir el explorador de archivos
+                                    _openFileExplorer();
+                                  } else {
+                                    // El usuario no concedió el permiso, puedes mostrar un mensaje o realizar alguna acción adicional
+                                    print('El usuario no concedió el permiso de almacenamiento.');
+                                  }
+                                }
                               },
                             )),
                       ),
@@ -365,10 +384,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> habla(String C) async {
-    print("hablare y dire: $C");
     await flutterTts.awaitSpeakCompletion(true);
     if (C.isNotEmpty) {
-      print("xdxdxde: $texto");
       await flutterTts.speak(C);
       await flutterTts.awaitSpeakCompletion(true);
       hablando = false;
@@ -408,9 +425,10 @@ class _HomePageState extends State<HomePage> {
       }
       await Future.delayed(Duration(milliseconds: esperaVisemas), () {
         if (cara != 2) {
-          visemaNum?.value = charToVisema(texto[i]).toDouble();
-        } else
           visemaNum?.value = charToVisemaGenerico(texto[i]).toDouble();
+        } else{
+          visemaNum?.value = charToVisemaGenerico(texto[i]).toDouble();
+        }
       });
     }
   }
