@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
-String apiKey = "";
+String apiKey = "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";
 
 Future sendTextCompletionRequest(String message) async {
   String baseUrl = "https://api.openai.com/v1/completions";
@@ -26,6 +26,9 @@ Future sendTextCompletionRequest(String message) async {
   if (res.statusCode == 200) {
 
     return jsonDecode(res.body);
-  } else print("ERROR " +res.statusCode.toString());
+  } else {
+    print(res.body);
+    print("ERROR " +res.statusCode.toString());
+  }
 
 }

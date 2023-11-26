@@ -43,7 +43,6 @@ String limpiaTexto(String texto) {
       if (texto[i - 1] == 'y' && texto[i] == '') {
         texto = replaceCharAt(texto, i - 1, 'i');
       }
-
     }
   }
   return texto;
@@ -178,8 +177,7 @@ int charToVisema(String C) {
 }
 
 dynamic splitPorPunto(String texto) {
-  var arr = texto.split(RegExp(r'(\n|\.)'));
-
+  var arr = texto.split(RegExp(r'(\n|\.|\;|\¿|\¡)'));
   return arr;
 }
 String numeroEnPalabras(int numero) {

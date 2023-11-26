@@ -16,10 +16,12 @@ int esperaVisemas = 0;
 Artboard? riveArtboard;
 bool hablando=false;
 String riv='chica_rubia';
+List<String> caras= ["chica_rubia","nene","pelota","primercara"];
+int caraIndex = 0;
 int cara=0;
 String fileContent = '';
-
+List<dynamic> voices = [];
 String ejemploAbc =
-    ". a. be. ce. de. efe. ge. hache. i. jota. ka. ele. eme. ene. eñe. o. pe. ku. erre. ese. te. u. ve. doble ve. equis. y griega. zeta.";
+    ". a. be. ce. de. efe. ge. hache. i. jota. ka. ele. eme. ene. eñe. o. pe. ku. erre. ese. te. u. ve. doble ve. equis. y griega. seta.";
 
 

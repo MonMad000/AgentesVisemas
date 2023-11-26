@@ -1,8 +1,12 @@
+import 'dart:convert';
+import 'dart:ffi';
 import 'dart:io';
 
 import 'package:agentes2d/GUI/DialogCard.dart';
 import 'package:agentes2d/GUI/DialogRtaCard.dart';
+import 'package:agentes2d/tools/MensajeModelo.dart';
 import 'package:agentes2d/tools/globales.dart';
+import 'package:agentes2d/tools/openai_services.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -36,7 +40,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List<String> mensajes = [];
+  List<MensajeModelo> mensajes = [];
   bool interactiveMode = false;
 
   //############### FUNCIONES DE INICIALIZACION##############
@@ -53,15 +57,16 @@ class _HomePageState extends State<HomePage> {
   initTts() async {
     //inicializa el flutterTts, controlador del texto a voz
     flutterTts = FlutterTts();
-    await flutterTts.setLanguage('es-MX'); // Establece el idioma
-    await flutterTts
-        .setSpeechRate(0.46); //0.53 Establece la velocidad del habla
+    _getAvailableVoices();
+    await flutterTts.setLanguage('es-US'); // Establece el idioma
+    await flutterTts.setSpeechRate(0.3); //mi celu android
+    //.setSpeechRate(0.4);
     await flutterTts.setVolume(1); // Establece el volumen
   }
 
   initRive(String riv) {
     rootBundle.load('assets/Caras/$riv.riv').then(
-    //rootBundle.load('assets/Caras/nene.riv').then(
+      //rootBundle.load('assets/Caras/nene.riv').then(
       //se toma el archivo .rive de la animacion
       (data) async {
         // se guarda en la variable file
@@ -111,23 +116,39 @@ class _HomePageState extends State<HomePage> {
                     ),
                     borderRadius: BorderRadius.circular(25),
                   ),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: Colors
-                            .black54, // Color del segundo borde (doble borde)
-                        width: 8, // Ancho del segundo borde
+                  child: GestureDetector(
+                    onHorizontalDragEnd: (details) {
+                      // Calcula la diferencia horizontal
+                      double deltaX = details.primaryVelocity ?? 0;
+
+                      // Establece un umbral para determinar si es un gesto de desplazamiento a la izquierda o a la derecha
+                      if (deltaX > 0) {
+                        // Desplazamiento hacia la derecha
+                        print('Desplazamiento a la derecha');
+                        _moveToNext();
+                        initRive(caras[caraIndex]);
+                      } else if (deltaX < 0) {
+                        // Desplazamiento hacia la izquierda
+                        print('Desplazamiento a la izquierda');
+                        _moveToPrevious();
+                        initRive(caras[caraIndex]);
+                      }
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Colors
+                              .black54, // Color del segundo borde (doble borde)
+                          width: 8, // Ancho del segundo borde
+                        ),
+                        borderRadius: BorderRadius.circular(15),
                       ),
-                      borderRadius: BorderRadius.circular(15),
+                      child: Center(
+                        child: riveArtboard != null
+                            ? Rive(artboard: riveArtboard!)
+                            : CircularProgressIndicator(),
+                      ),
                     ),
-                    child: SizedBox(
-                        width: 500,
-                        height: 500,
-                        child: Center(
-                          child: riveArtboard != null
-                              ? Rive(artboard: riveArtboard!, fit: BoxFit.cover)
-                              : CircularProgressIndicator(),
-                        )),
                   ),
                 )),
             Expanded(
@@ -137,16 +158,19 @@ class _HomePageState extends State<HomePage> {
                   shrinkWrap: true,
                   itemCount: mensajes.length + 1,
                   itemBuilder: (context, index) {
+
                     if (index == mensajes.length) {
                       return Container(
                         height: 40,
                       );
                     }
-                    if (interactiveMode) {
-                      return DialogRtaCard(txt: mensajes[index]);
-                    } else {
-                      return DialogCard(txt: mensajes[index]);
-                    }
+
+                    return mensajes[index].tipo == "enviado"
+                        ? DialogCard(
+                            txt: mensajes[index].mensaje,
+                            callback: updateTextField,
+                          )
+                        : DialogRtaCard(txt: mensajes[index].mensaje);
                   },
                 )),
             Align(
@@ -186,21 +210,19 @@ class _HomePageState extends State<HomePage> {
                               icon: const Icon(Icons.attach_file),
                               onPressed: () async {
                                 // Verificar si el permiso ya fue concedido
-                                var status = await Permission.storage.status;
-                                if (status.isGranted) {
-                                  // El permiso ya fue concedido, puedes abrir el explorador de archivos
-                                  _openFileExplorer();
-                                } else {
-                                  // El permiso no fue concedido, solicitar permiso
-                                  var result = await Permission.storage.request();
-                                  if (result.isGranted) {
-                                    // El permiso fue concedido después de la solicitud, puedes abrir el explorador de archivos
-                                    _openFileExplorer();
-                                  } else {
-                                    // El usuario no concedió el permiso, puedes mostrar un mensaje o realizar alguna acción adicional
-                                    print('El usuario no concedió el permiso de almacenamiento.');
-                                  }
-                                }
+                                // var status = await Permission
+                                //     .manageExternalStorage.status;
+                                // if (status.isGranted) {
+                                //   // El permiso ya fue concedido, puedes abrir el explorador de archivos
+                                //   _openFileExplorer();
+                                // } else {
+                                //   // El usuario no concedió el permiso, puedes mostrar un mensaje o realizar alguna acción adicional
+                                //   print(
+                                //       'El usuario no concedió el permiso de almacenamiento.');
+                                // }
+                                fileContent = await rootBundle.loadString('assets/textos/3cerditos.txt');
+                                cargaTXT(fileContent);
+
                               },
                             )),
                       ),
@@ -236,19 +258,33 @@ class _HomePageState extends State<HomePage> {
                                   ? Icons.send
                                   : Icons.record_voice_over,
                               color: Colors.white),
-                          onPressed: () {
+                          onPressed: () async {
                             if (controller.text.isNotEmpty) {
                               FocusScope.of(context).requestFocus(FocusNode());
-                              scrollController.animateTo(
-                                  scrollController.position.maxScrollExtent,
-                                  duration: const Duration(milliseconds: 300),
-                                  curve: Curves.easeInOut);
 
-                              setMensaje(controller.text);
-                              controller.clear();
-                              //flutterTts.speak("esto es un ejemplo de audio");
-                              printLanguages();
-                              hablaSSML(texto);
+                              if (!interactiveMode) {
+                                await setMensaje("enviado", controller.text);
+                                print("el texto enviado es $texto");
+                                controller.clear(); //limpia el campo de texto
+                                fragmentarTexto(texto);
+                              } else {
+                                // print('modo interactivo, el texto tiene $texto');
+                                // var res = await sendTextCompletionRequest(texto);
+                                // print("res:"+res.toString());
+                                // response =res["choices"][0]["text"];
+                                // print("response:"+response);
+                                // String textoDecodificado = utf8.decode(response.codeUnits);
+                                // print(textoDecodificado);
+                                await setMensaje("enviado", controller.text);
+
+                                controller.clear(); //limpia el campo de texto
+                                //fragmentarTexto(textoDecodificado);
+                                String rta =
+                                    "Hola.Esto es una respuesta feliz!";
+                                fragmentarTexto(rta);
+
+                                await setMensaje("recibido", rta);
+                              }
                             }
                           },
                         ),
@@ -269,19 +305,19 @@ class _HomePageState extends State<HomePage> {
       type: FileType.custom,
       allowedExtensions: ['txt'],
     );
-
     if (result != null) {
       final path = result.files.single.path;
       final file = File(path!);
 
       fileContent = await file.readAsString();
-      cargaTXT();
+      cargaTXT(fileContent);
     } else {
       // Se la selección de archivos.
     }
   }
 
-  void cargaTXT() {
+  void cargaTXT(String fileContent)  {
+
     showModalBottomSheet(
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
@@ -339,13 +375,7 @@ class _HomePageState extends State<HomePage> {
                                   : Icons.record_voice_over,
                               color: Colors.white),
                           onPressed: () {
-                            FocusScope.of(context).requestFocus(FocusNode());
-                            scrollController.animateTo(
-                                scrollController.position.maxScrollExtent,
-                                duration: const Duration(milliseconds: 300),
-                                curve: Curves.easeInOut);
-                            setMensaje(controller.text);
-                            controller.clear();
+                            fragmentarTexto(fileContent);
                           },
                         ),
                       ),
@@ -358,30 +388,18 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void setMensaje(String txt) {
+  Future<dynamic> setMensaje(String tipo, String txt) async {
+    MensajeModelo mensajeModelo = MensajeModelo(
+        mensaje: txt, tipo: tipo, cntLineas: txt.split('\n').length);
     setState(() {
-      mensajes.add(txt);
+      scrollController.animateTo(scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 200), curve: Curves.easeInOut);
+      mensajes.add(mensajeModelo);
     });
+    return Future(() => 1);
   }
 
   //################# FUNCIONES QUE ACTUALIZAN ESTADO###################
-  pressHablar(String texto) {
-    //se acomoda el texto para poder convertirlo a visemas
-    //texto=remplazarNumerosEnPalabras(texto);
-    texto = limpiaTexto(texto);
-    textoDividido = splitPorPunto(texto);
-    for (int j = 0; j < textoDividido.length; j++) {
-      print(textoDividido[j]);
-    }
-    recorrerArregloDeStrings(textoDividido);
-  }
-
-  recorrerArregloDeStrings(List<String> textoCompleto) async {
-    for (int i = 0; i < textoCompleto.length; i++) {
-      recorrerTexto(textoCompleto[i]);
-      await habla(textoCompleto[i]);
-    }
-  }
 
   Future<void> habla(String C) async {
     await flutterTts.awaitSpeakCompletion(true);
@@ -401,39 +419,6 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  //hace que mueva la boca basicamente
-  void recorrerTexto(String texto) async {
-    RegExp regExp = RegExp(r'[;:?!]');
-    //se recorre el texto para pasar de caracter a visema
-
-    for (int i = 0; i < texto.length; i++) {
-      //este if controla que si es el primer caracter no espere
-      if (i == 0) {
-        esperaVisemas = 0;
-      } else {
-        esperaVisemas = 70; //este tiempo deberia ser una variable
-      }
-      if (texto[i] == ',') {
-        //flutterTts.pause();
-        await Future.delayed(const Duration(milliseconds: 750));
-        //await flutterTts.speak(texto.substring(i));
-      }
-      if (regExp.hasMatch(texto[i])) {
-        //flutterTts.pause();
-        await Future.delayed(const Duration(milliseconds: 850));
-        //await flutterTts.speak(texto.substring(i));
-      }
-      await Future.delayed(Duration(milliseconds: esperaVisemas), () {
-        if (cara != 2) {
-          visemaNum?.value = charToVisemaGenerico(texto[i]).toDouble();
-        } else{
-          visemaNum?.value = charToVisemaGenerico(texto[i]).toDouble();
-        }
-      });
-    }
-  }
-
-  //
   void recorrerTextoSSML(String texto) async {
     //se recorre el texto para pasar de caracter a visema
     for (int i = 0; i < texto.length; i++) {
@@ -441,11 +426,12 @@ class _HomePageState extends State<HomePage> {
       if (i == 0) {
         esperaVisemas = 0;
       } else {
-        esperaVisemas = 65; //este tiempo deberia ser una variable
+        esperaVisemas =
+            70; //este tiempo deberia ser una variable//mi celu anroid
       }
       switch (texto[i]) {
         case '.':
-          await Future.delayed(const Duration(milliseconds: 500));
+          await Future.delayed(const Duration(milliseconds: 800));
           break;
         case ',':
           await Future.delayed(const Duration(milliseconds: 300));
@@ -470,7 +456,11 @@ class _HomePageState extends State<HomePage> {
           break;
       }
       await Future.delayed(Duration(milliseconds: esperaVisemas), () {
-        visemaNum?.value = charToVisema(texto[i]).toDouble();
+        if (caraIndex == 1 || caraIndex == 2) {
+          visemaNum?.value = charToVisemaGenerico(texto[i]).toDouble();
+        } else {
+          visemaNum?.value = charToVisema(texto[i]).toDouble();
+        }
       });
       //recorro la cadena entre signos de puntuacion
       if (texto[i] == '.' ||
@@ -479,6 +469,7 @@ class _HomePageState extends State<HomePage> {
           texto[i] == '?' ||
           texto[i] == '!' ||
           texto[i] == ':' ||
+          texto[i] == '-' ||
           i == 0) {
         // Detectar el próximo texto hasta el siguiente signo de puntuación
         String proximoTexto = '';
@@ -488,7 +479,8 @@ class _HomePageState extends State<HomePage> {
               texto[j] == ';' ||
               texto[j] == '?' ||
               texto[j] == '!' ||
-              texto[j] == ':') {
+              texto[j] == ':' ||
+              texto[i] == '-') {
             break;
           }
           proximoTexto += texto[j];
@@ -502,18 +494,88 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Future<void> hablaSSML(String txt) async {
+  hablaSSML(String txt) async {
+    await flutterTts.awaitSpeakCompletion(true);
+    // txt=agregarPuntoDespuesDeConjuncion(txt);
+    print('texo con puntos nuevos $txt');
     txt = remplazarNumerosEnPalabras(txt);
     String txtSSML = convertToSSML(txt); //se prepara el texto para el tts
     String txtLimpio =
         limpiaTexto(txt); //se prepara el texto para el ttv (text to visem)
     recorrerTextoSSML(txtLimpio);
-    habla(txtSSML);
+    await flutterTts.speak(txtSSML);
+    visemaNum?.value = -1;
+    //habla(txtSSML);
   }
 
   void printLanguages() async {
-    List<dynamic> languages = await flutterTts.getEngines;
+    List<dynamic> languages = await flutterTts.getVoices;
     print("engines soportados:");
-    print(languages.toString());
+    languages.forEach((language) {
+      print(language);
+    });
+  }
+
+  void updateTextField(String newText) {
+    setState(() {
+      controller.text = newText;
+      texto = newText;
+    });
+  }
+
+//################# FUNCIONES AUXILIARES###################
+//fragmentar texto largo
+//aca primero deberia llamar a una funcion que invoque a splitPorPunto
+// y luego con el arreglo de textos invocar a recorrerArregloDeStrings
+//donde ahi dentro recien llamar a hablaSSML
+  fragmentarTexto(String texto) {
+    textoDividido = splitPorPunto(texto);
+    print('el texto dividido es' + textoDividido.toString());
+    recorrerArregloDeStrings(textoDividido);
+  }
+
+  recorrerArregloDeStrings(List<String> textoCompleto) async {
+    for (int i = 0; i < textoCompleto.length; i++) {
+      await hablaSSML(textoCompleto[i]);
+    }
+  }
+
+  void _moveToNext() {
+    setState(() {
+      caraIndex = (caraIndex + 1) % caras.length;
+    });
+  }
+
+  void _moveToPrevious() {
+    setState(() {
+      caraIndex = (caraIndex - 1 + caras.length) % caras.length;
+    });
+  }
+
+  Future<void> _getAvailableVoices() async {
+    obtenerLenguajesEnEspanol();
+    voices = await flutterTts.getVoices;
+    List<dynamic> spanishVoices = voices.where((voice) => voice['locale'].toString().contains('es')).toList();
+
+    print('Available Spanish Voices:');
+    for (var voice in spanishVoices) {
+      print('Name: ${voice['name']}, Language: ${voice['locale']}');
+    }
+  }
+  void obtenerLenguajesEnEspanol() async {
+    FlutterTts flutterTts = FlutterTts();
+
+    // Obtener todos los lenguajes soportados por Flutter TTS
+    List<dynamic>? languages = await flutterTts.getLanguages;
+
+    // Filtrar los lenguajes que contienen "es" para español
+    List<String> lenguajesEspanol = languages
+        ?.where((language) => language.toString().toLowerCase().contains("es"))
+        .map((language) => language.toString())
+        .toList() ?? [];
+    for (String lenguaje in lenguajesEspanol) {
+      print("- $lenguaje");
+    }
+    //return lenguajesEspanol;
   }
 }

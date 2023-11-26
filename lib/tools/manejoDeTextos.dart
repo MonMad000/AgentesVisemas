@@ -40,7 +40,7 @@ enum Emocion {
 }
 
 Map<Emocion, List<String>> palabrasClave = {
-  Emocion.Pregunta:['¿'],
+  Emocion.Pregunta:['?'],
   Emocion.Felicidad: [
     'feliz', 'alegre', 'bueno', 'maravilloso', 'amor', 'divertido', 'éxito',
     'sonrisa', 'agradable', 'positivo', 'contento', 'optimismo', 'gratitud',
@@ -133,8 +133,28 @@ double asignarValorEmocion(Emocion emocion) {
     return 4.0;
   } else if (emocion == Emocion.Asco) {
     return 5.0;
-  } else {
+  } if (emocion == Emocion.Pregunta) {
+    return 6.0;
+  }else  {
     // Emoción Neutral o cualquier otro caso
     return 0.0;
   }
+
+}
+String agregarPuntoDespuesDeConjuncion(String texto) {
+  List<String> conjunciones = ['pero', 'aunque', 'sino', 'porque', 'pues'];
+  List<String> palabras = texto.split(' ');
+  List<String> nuevoTexto = [];
+
+  for (int i = 0; i < palabras.length; i++) {
+    nuevoTexto.add(palabras[i]);
+
+    // Verificar si la palabra actual es una conjunción
+    if (conjunciones.contains(palabras[i].toLowerCase()) && i + 1 < palabras.length) {
+      // Agregar un punto después de la conjunción
+      nuevoTexto.add('.');
+    }
+  }
+
+  return nuevoTexto.join(' ');
 }
