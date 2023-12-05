@@ -57,15 +57,16 @@ class _HomePageState extends State<HomePage> {
   initTts() async {
     //inicializa el flutterTts, controlador del texto a voz
     flutterTts = FlutterTts();
-    _getAvailableVoices();
-    await flutterTts.setLanguage('es-US'); // Establece el idioma
+    //_getAvailableVoices();
+    setVoiceRubia();
     await flutterTts.setSpeechRate(0.3); //mi celu android
+
     //.setSpeechRate(0.4);
     await flutterTts.setVolume(1); // Establece el volumen
   }
 
   initRive(String riv) {
-    rootBundle.load('assets/Caras/$riv.riv').then(
+    rootBundle.load('assets/Caras2/$riv.riv').then(
       //rootBundle.load('assets/Caras/nene.riv').then(
       //se toma el archivo .rive de la animacion
       (data) async {
@@ -132,6 +133,19 @@ class _HomePageState extends State<HomePage> {
                         print('Desplazamiento a la izquierda');
                         _moveToPrevious();
                         initRive(caras[caraIndex]);
+                      }
+                      switch(caraIndex) {
+                        case 0:
+                          setVoiceRubia();
+                          break; // The switch statement must be told to exit, or it will execute every case.
+                        case 1:
+                          setVoiceNene();
+                          break;
+                        case 2:
+                          setVoicePelota();
+                          break;
+                        default:
+                          setVoiceMujer();
                       }
                     },
                     child: Container(
@@ -426,8 +440,12 @@ class _HomePageState extends State<HomePage> {
       if (i == 0) {
         esperaVisemas = 0;
       } else {
-        esperaVisemas =
-            70; //este tiempo deberia ser una variable//mi celu anroid
+        if (caraIndex == 1 || caraIndex == 2) {
+          esperaVisemas = 57;
+        } else {
+          esperaVisemas = 65;
+        }
+
       }
       switch (texto[i]) {
         case '.':
@@ -495,6 +513,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   hablaSSML(String txt) async {
+
     await flutterTts.awaitSpeakCompletion(true);
     // txt=agregarPuntoDespuesDeConjuncion(txt);
     print('texo con puntos nuevos $txt');
@@ -553,29 +572,30 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _getAvailableVoices() async {
-    obtenerLenguajesEnEspanol();
     voices = await flutterTts.getVoices;
     List<dynamic> spanishVoices = voices.where((voice) => voice['locale'].toString().contains('es')).toList();
-
+    List<Map<String, dynamic>> voiceMaps = [];
     print('Available Spanish Voices:');
     for (var voice in spanishVoices) {
-      print('Name: ${voice['name']}, Language: ${voice['locale']}');
-    }
-  }
-  void obtenerLenguajesEnEspanol() async {
-    FlutterTts flutterTts = FlutterTts();
+      print('name: ${voice['name']}, locale: ${voice['locale']}');
 
-    // Obtener todos los lenguajes soportados por Flutter TTS
-    List<dynamic>? languages = await flutterTts.getLanguages;
-
-    // Filtrar los lenguajes que contienen "es" para español
-    List<String> lenguajesEspanol = languages
-        ?.where((language) => language.toString().toLowerCase().contains("es"))
-        .map((language) => language.toString())
-        .toList() ?? [];
-    for (String lenguaje in lenguajesEspanol) {
-      print("- $lenguaje");
+      // Hablar utilizando la voz actual
+      await flutterTts.setVoice({
+        "name": voice['name'],
+        "locale": voice['locale'],
+      });
+      await flutterTts.awaitSpeakCompletion(true);
+      await flutterTts.speak("Hola, estoy probando esta voz.");
+      voiceMaps.add({
+        "name": voice['name'],
+        "locale": voice['locale'],
+      });
     }
-    //return lenguajesEspanol;
+    print('Voice Maps:');
+    voiceMaps.forEach((voiceMap) {
+      print('name: ${voiceMap['name']}, locale: ${voiceMap['locale']}');
+    });
   }
+
+
 }

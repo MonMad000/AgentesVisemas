@@ -23,5 +23,13 @@ String fileContent = '';
 List<dynamic> voices = [];
 String ejemploAbc =
     ". a. be. ce. de. efe. ge. hache. i. jota. ka. ele. eme. ene. eñe. o. pe. ku. erre. ese. te. u. ve. doble ve. equis. y griega. seta.";
-
+List<Map<String, String>> voiceMaps = [
+  {"name": "es-us-x-sfb-network", "locale": "es-US"},//0//mujer ES
+  {"name": "es-US-language", "locale": "es-US"},//1//hombre LA
+  {"name": "es-us-x-esc-network", "locale": "es-US"},//2 mujer LA
+  {"name": "es-us-x-esf-local", "locale": "es-US"},//3 h la
+  {"name": "es-us-x-esc-local", "locale": "es-US"},//4 m la
+  {"name": "es-us-x-esf-network", "locale": "es-US"},//5 h la
+  {"name": "es-us-x-esd-network", "locale": "es-US"},//6 h la nene
+];
 

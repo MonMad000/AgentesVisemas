@@ -1,5 +1,7 @@
 import 'package:diacritic/diacritic.dart';
 
+import 'globales.dart';
+
 String limpiaTexto(String texto) {
   texto=texto.toLowerCase();
   for (int i = 0; i < texto.length; i++) {
@@ -257,7 +259,27 @@ String remplazarNumerosEnPalabras(String texto) {
   return texto.replaceAllMapped(regex, (match) => numeroEnPalabras(int.parse(match.group(0)!)));
 }
 
-
+// ################# FUNCIONES AUXILIARES###################
+Future<void> setVoiceNene () async {
+  await flutterTts.awaitSpeakCompletion(true);
+  await flutterTts.setVoice(voiceMaps[6]);
+  await flutterTts.setPitch(1.65);
+}
+Future<void> setVoiceRubia () async {
+  await flutterTts.awaitSpeakCompletion(true);
+  await flutterTts.setVoice(voiceMaps[4]);
+  await flutterTts.setPitch(1.1);
+}
+Future<void> setVoiceMujer () async {
+  await flutterTts.awaitSpeakCompletion(true);
+  await flutterTts.setVoice(voiceMaps[2]);
+  await flutterTts.setPitch(0.65);
+}
+Future<void> setVoicePelota () async {
+  await flutterTts.awaitSpeakCompletion(true);
+  await flutterTts.setVoice(voiceMaps[5]);
+  await flutterTts.setPitch(1);
+}
 
 
 
