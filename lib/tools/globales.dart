@@ -16,7 +16,7 @@ int esperaVisemas = 0;
 Artboard? riveArtboard;
 bool hablando=false;
 String riv='chica_rubia';
-List<String> caras= ["chica_rubia","nene","pelota","primercara"];
+List<String> caras= ["chica_rubia","nene","pelota","primercara1"];
 int caraIndex = 0;
 int cara=0;
 String fileContent = '';

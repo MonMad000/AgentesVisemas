@@ -179,7 +179,7 @@ int charToVisema(String C) {
 }
 
 dynamic splitPorPunto(String texto) {
-  var arr = texto.split(RegExp(r'(\n|\.|\;|\¿|\¡)'));
+  var arr = texto.split(RegExp(r'(\n|\.|\;|\¿|\¡|\,)'));
   return arr;
 }
 String numeroEnPalabras(int numero) {
@@ -268,12 +268,12 @@ Future<void> setVoiceNene () async {
 Future<void> setVoiceRubia () async {
   await flutterTts.awaitSpeakCompletion(true);
   await flutterTts.setVoice(voiceMaps[4]);
-  await flutterTts.setPitch(1.1);
+  await flutterTts.setPitch(1.2);
 }
 Future<void> setVoiceMujer () async {
   await flutterTts.awaitSpeakCompletion(true);
   await flutterTts.setVoice(voiceMaps[2]);
-  await flutterTts.setPitch(0.65);
+  await flutterTts.setPitch(0.9);
 }
 Future<void> setVoicePelota () async {
   await flutterTts.awaitSpeakCompletion(true);

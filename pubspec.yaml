@@ -40,6 +40,7 @@ dependencies:
   rive: ^0.9.1
   diacritic: ^0.1.4
   permission_handler: ^11.0.1
+  flutter_gemini: ^2.0.3
 
 dev_dependencies:
   flutter_test:

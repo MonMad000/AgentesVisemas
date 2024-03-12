@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io';
@@ -5,6 +6,7 @@ import 'dart:io';
 import 'package:agentes2d/GUI/DialogCard.dart';
 import 'package:agentes2d/GUI/DialogRtaCard.dart';
 import 'package:agentes2d/tools/MensajeModelo.dart';
+import 'package:agentes2d/tools/gemini_api.dart';
 import 'package:agentes2d/tools/globales.dart';
 import 'package:agentes2d/tools/openai_services.dart';
 import 'package:file_picker/file_picker.dart';
@@ -52,6 +54,9 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     initTts();
     initRive(riv);
+    Timer.periodic(const Duration(seconds: 4), (timer) {
+      parpadea();
+    });
   }
 
   initTts() async {
@@ -217,6 +222,7 @@ class _HomePageState extends State<HomePage> {
                                 value: interactiveMode,
                                 onChanged: (value) {
                                   setState(() {
+                                    //parpadea();
                                     interactiveMode = value;
                                   });
                                 }),
@@ -295,6 +301,14 @@ class _HomePageState extends State<HomePage> {
                                 //fragmentarTexto(textoDecodificado);
                                 String rta =
                                     "Hola.Esto es una respuesta feliz!";
+                                rta = await GeminiAPI.getGeminiData(texto);
+
+                                rta = eliminarSimbolos(rta);
+
+                                if(rta == ""){
+                                  rta="Prefiero no hablar de eso";
+                                }
+
                                 fragmentarTexto(rta);
 
                                 await setMensaje("recibido", rta);
@@ -313,7 +327,13 @@ class _HomePageState extends State<HomePage> {
       ),
     ));
   }
+  String eliminarSimbolos(String texto) {
+    // Expresión regular que busca los símbolos a eliminar.
+    final RegExp simbolosAEliminar = RegExp(r'[*\@\#\$%\^\&]');
 
+    // Reemplaza todos los símbolos con una cadena vacía.
+    return texto.replaceAll(simbolosAEliminar, '');
+  }
   void _openFileExplorer() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
@@ -516,7 +536,7 @@ class _HomePageState extends State<HomePage> {
 
     await flutterTts.awaitSpeakCompletion(true);
     // txt=agregarPuntoDespuesDeConjuncion(txt);
-    print('texo con puntos nuevos $txt');
+    //print('texo con puntos nuevos $txt');
     txt = remplazarNumerosEnPalabras(txt);
     String txtSSML = convertToSSML(txt); //se prepara el texto para el tts
     String txtLimpio =
@@ -540,6 +560,15 @@ class _HomePageState extends State<HomePage> {
       controller.text = newText;
       texto = newText;
     });
+  }
+
+  Future<void> parpadea() async {
+    //await flutterTts.stop();
+
+    miradaNum?.value=5;
+    await Future.delayed(const Duration(milliseconds: 100));
+    miradaNum?.value=-1;
+
   }
 
 //################# FUNCIONES AUXILIARES###################
