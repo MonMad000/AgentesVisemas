@@ -8,6 +8,9 @@ String limpiaTexto(String texto) {
     if (i == 0 && texto[i] == 'h') {
       texto = replaceCharAt(texto, i, '');
     }
+    if (i == 0 && texto[i] == '¿') {
+      texto = replaceCharAt(texto, i, '');
+    }
     if (i - 1 >= 0 && i + 1 <= texto.length) {
       //cambio las h por espacios en blanco
       if (texto[i] == 'h') {

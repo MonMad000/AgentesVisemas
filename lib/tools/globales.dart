@@ -1,8 +1,15 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:rive/rive.dart';
 
 FlutterTts flutterTts = FlutterTts(); //texto a voz
+enum TTSState { playing, stopped, paused, continued }
+TTSState ttsState = TTSState.stopped;
+bool moverBoca=true;
+late Timer timer;
+int segundos = 0;
 String texto = "";
 TextEditingController controller = TextEditingController();
 ScrollController scrollController = ScrollController();
@@ -15,8 +22,8 @@ int selectedEmotion = 0;
 int esperaVisemas = 0;
 Artboard? riveArtboard;
 bool hablando=false;
-String riv='chica_rubia';
-List<String> caras= ["chica_rubia","nene","pelota","primercara1"];
+String riv='chica_rubia0';
+List<String> caras= ["chica_rubia0","nene0","pelota0","primercara0"];
 int caraIndex = 0;
 int cara=0;
 String fileContent = '';

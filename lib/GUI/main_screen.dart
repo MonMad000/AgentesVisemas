@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:agentes2d/GUI/DialogCard.dart';
 import 'package:agentes2d/GUI/DialogRtaCard.dart';
@@ -46,22 +47,66 @@ class _HomePageState extends State<HomePage> {
   bool interactiveMode = false;
 
   //############### FUNCIONES DE INICIALIZACION##############
+  void _iniciarContador() {
+    timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      setState(() {
+        segundos++;
+      });
+    });
+  }
 
+  void _reiniciarContador() {
+    setState(() {
+      segundos = 0;
+    });
+  }
   @override
   void initState() {
+    final Random _random = Random();
+
     //se llama cuando este objeto se agrega al árbol de widget(en este caso al inicio ya q es la raiz)
     texto = "";
     super.initState();
+    _iniciarContador();
     initTts();
     initRive(riv);
     Timer.periodic(const Duration(seconds: 4), (timer) {
       parpadea();
+    });
+
+    Timer.periodic(const Duration(seconds: 2), (timer) async {
+      print(segundos);
+      if (segundos>10){
+        print("estuve 10 seg sin hablar");
+        double g=_random.nextInt(6).toDouble();
+        gestoNum?.value=g;
+        visemaNum?.value=-1;
+        print("random: "+gestoNum!.value.toString());
+        miradaNum?.value=-1;
+        await Future.delayed(const Duration(milliseconds: 2000));
+        gestoNum?.value=0;
+        visemaNum?.value=0;
+        print("random: "+gestoNum!.value.toString());
+        miradaNum?.value=-1;
+        _reiniciarContador();
+      }
     });
   }
 
   initTts() async {
     //inicializa el flutterTts, controlador del texto a voz
     flutterTts = FlutterTts();
+    flutterTts.setStartHandler(() {
+      setState(() {
+        ttsState = TTSState.playing;
+      });
+    });
+
+    flutterTts.setCompletionHandler(() {
+      setState(() {
+        ttsState = TTSState.stopped;
+      });
+    });
     //_getAvailableVoices();
     setVoiceRubia();
     await flutterTts.setSpeechRate(0.3); //mi celu android
@@ -139,7 +184,7 @@ class _HomePageState extends State<HomePage> {
                         _moveToPrevious();
                         initRive(caras[caraIndex]);
                       }
-                      switch(caraIndex) {
+                      switch (caraIndex) {
                         case 0:
                           setVoiceRubia();
                           break; // The switch statement must be told to exit, or it will execute every case.
@@ -177,7 +222,6 @@ class _HomePageState extends State<HomePage> {
                   shrinkWrap: true,
                   itemCount: mensajes.length + 1,
                   itemBuilder: (context, index) {
-
                     if (index == mensajes.length) {
                       return Container(
                         height: 40,
@@ -222,6 +266,7 @@ class _HomePageState extends State<HomePage> {
                                 value: interactiveMode,
                                 onChanged: (value) {
                                   setState(() {
+                                    print(ttsState);
                                     //parpadea();
                                     interactiveMode = value;
                                   });
@@ -240,9 +285,9 @@ class _HomePageState extends State<HomePage> {
                                 //   print(
                                 //       'El usuario no concedió el permiso de almacenamiento.');
                                 // }
-                                fileContent = await rootBundle.loadString('assets/textos/3cerditos.txt');
+                                fileContent = await rootBundle
+                                    .loadString('assets/textos/3cerditos.txt');
                                 cargaTXT(fileContent);
-
                               },
                             )),
                       ),
@@ -279,15 +324,24 @@ class _HomePageState extends State<HomePage> {
                                   : Icons.record_voice_over,
                               color: Colors.white),
                           onPressed: () async {
-                            if (controller.text.isNotEmpty) {
-                              FocusScope.of(context).requestFocus(FocusNode());
+                            _reiniciarContador();
+                            FocusScope.of(context).requestFocus(FocusNode());
 
-                              if (!interactiveMode) {
-                                await setMensaje("enviado", controller.text);
-                                print("el texto enviado es $texto");
-                                controller.clear(); //limpia el campo de texto
-                                fragmentarTexto(texto);
+                            if (!interactiveMode) {
+                              if (ttsState == TTSState.playing) {
+                                moverBoca=false;
+                                _stop();
                               } else {
+                                if (controller.text.isNotEmpty) {
+                                  moverBoca=true;
+                                  await setMensaje("enviado", controller.text);
+                                  print("el texto enviado es $texto");
+                                  controller.clear(); //limpia el campo de texto
+                                  fragmentarTexto(texto);
+                                }
+                              }
+                            } else {
+                              if (controller.text.isNotEmpty) {
                                 // print('modo interactivo, el texto tiene $texto');
                                 // var res = await sendTextCompletionRequest(texto);
                                 // print("res:"+res.toString());
@@ -305,8 +359,8 @@ class _HomePageState extends State<HomePage> {
 
                                 rta = eliminarSimbolos(rta);
 
-                                if(rta == ""){
-                                  rta="Prefiero no hablar de eso";
+                                if (rta == "") {
+                                  rta = "Prefiero no hablar de eso";
                                 }
 
                                 fragmentarTexto(rta);
@@ -327,6 +381,7 @@ class _HomePageState extends State<HomePage> {
       ),
     ));
   }
+
   String eliminarSimbolos(String texto) {
     // Expresión regular que busca los símbolos a eliminar.
     final RegExp simbolosAEliminar = RegExp(r'[*\@\#\$%\^\&]');
@@ -334,6 +389,7 @@ class _HomePageState extends State<HomePage> {
     // Reemplaza todos los símbolos con una cadena vacía.
     return texto.replaceAll(simbolosAEliminar, '');
   }
+
   void _openFileExplorer() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
@@ -350,8 +406,7 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void cargaTXT(String fileContent)  {
-
+  void cargaTXT(String fileContent) {
     showModalBottomSheet(
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
@@ -453,9 +508,14 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  void recorrerTextoSSML(String texto) async {
+  Future<int> recorrerTextoSSML(String texto) async {
     //se recorre el texto para pasar de caracter a visema
-    for (int i = 0; i < texto.length; i++) {
+
+      for (int i = 0; i < texto.length; i++) {
+        if(!moverBoca){
+          visemaNum?.value=-1;
+          return 0;
+        }
       //este if controla que si es el primer caracter no espere
       if (i == 0) {
         esperaVisemas = 0;
@@ -465,7 +525,6 @@ class _HomePageState extends State<HomePage> {
         } else {
           esperaVisemas = 65;
         }
-
       }
       switch (texto[i]) {
         case '.':
@@ -504,7 +563,7 @@ class _HomePageState extends State<HomePage> {
       if (texto[i] == '.' ||
           texto[i] == ',' ||
           texto[i] == ';' ||
-          texto[i] == '?' ||
+          //texto[i] == '?' ||
           texto[i] == '!' ||
           texto[i] == ':' ||
           texto[i] == '-' ||
@@ -515,7 +574,7 @@ class _HomePageState extends State<HomePage> {
           if (texto[j] == '.' ||
               texto[j] == ',' ||
               texto[j] == ';' ||
-              texto[j] == '?' ||
+              //texto[j] == '?' ||
               texto[j] == '!' ||
               texto[j] == ':' ||
               texto[i] == '-') {
@@ -530,19 +589,20 @@ class _HomePageState extends State<HomePage> {
         }
       }
     }
+    return 1;
   }
 
   hablaSSML(String txt) async {
-
     await flutterTts.awaitSpeakCompletion(true);
     // txt=agregarPuntoDespuesDeConjuncion(txt);
     //print('texo con puntos nuevos $txt');
     txt = remplazarNumerosEnPalabras(txt);
     String txtSSML = convertToSSML(txt); //se prepara el texto para el tts
     String txtLimpio =
-        limpiaTexto(txt); //se prepara el texto para el ttv (text to visem)
+        "${limpiaTexto(txt)}."; //se prepara el texto para el ttv (text to visem)
     recorrerTextoSSML(txtLimpio);
-    await flutterTts.speak(txtSSML);
+    //await flutterTts.speak(txtSSML);
+    await _speak(txtSSML);
     visemaNum?.value = -1;
     //habla(txtSSML);
   }
@@ -565,10 +625,9 @@ class _HomePageState extends State<HomePage> {
   Future<void> parpadea() async {
     //await flutterTts.stop();
 
-    miradaNum?.value=5;
+    miradaNum?.value = 5;
     await Future.delayed(const Duration(milliseconds: 100));
-    miradaNum?.value=-1;
-
+    miradaNum?.value = -1;
   }
 
 //################# FUNCIONES AUXILIARES###################
@@ -584,6 +643,7 @@ class _HomePageState extends State<HomePage> {
 
   recorrerArregloDeStrings(List<String> textoCompleto) async {
     for (int i = 0; i < textoCompleto.length; i++) {
+      if(moverBoca)
       await hablaSSML(textoCompleto[i]);
     }
   }
@@ -602,7 +662,9 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _getAvailableVoices() async {
     voices = await flutterTts.getVoices;
-    List<dynamic> spanishVoices = voices.where((voice) => voice['locale'].toString().contains('es')).toList();
+    List<dynamic> spanishVoices = voices
+        .where((voice) => voice['locale'].toString().contains('es'))
+        .toList();
     List<Map<String, dynamic>> voiceMaps = [];
     print('Available Spanish Voices:');
     for (var voice in spanishVoices) {
@@ -626,5 +688,19 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  Future<void> _speak(String text) async {
+    await flutterTts.speak(text);
+    setState(() {
+      ttsState = TTSState.playing;
+      print(ttsState);
+    });
+  }
 
+  Future<void> _stop() async {
+    await flutterTts.stop();
+    setState(() {
+      ttsState = TTSState.stopped;
+      print(ttsState);
+    });
+  }
 }
