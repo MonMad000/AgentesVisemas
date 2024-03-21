@@ -21,9 +21,8 @@ String limpiaTexto(String texto) {
         }
       }
       //cambio qu por k
-      if (texto[i - 1] == 'q' && texto[i] == 'u') {
-        texto = replaceCharAt(texto, i - 1, ' ');
-        texto = replaceCharAt(texto, i, 'k');
+      if (i - 1 >= 0 && texto[i - 1] == 'q' && texto[i] == 'u') {
+        texto = texto.substring(0, i - 1) + 'k' + texto.substring(i + 1);
       }
       //cambio qu por k
       if (texto[i - 1] == 'q') {
@@ -182,7 +181,7 @@ int charToVisema(String C) {
 }
 
 dynamic splitPorPunto(String texto) {
-  var arr = texto.split(RegExp(r'(\n|\.|\;|\¿|\¡|\,)'));
+  var arr = texto.split(RegExp(r'([\n.;¿¡,])'));
   return arr;
 }
 String numeroEnPalabras(int numero) {

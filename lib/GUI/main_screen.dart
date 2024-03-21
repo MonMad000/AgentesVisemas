@@ -75,18 +75,18 @@ class _HomePageState extends State<HomePage> {
     });
 
     Timer.periodic(const Duration(seconds: 2), (timer) async {
-      print(segundos);
-      if (segundos>10){
-        print("estuve 10 seg sin hablar");
+      //print(segundos);
+      if (segundos>10&&ttsState!=TTSState.playing){
+        //print("estuve 10 seg sin hablar");
         double g=_random.nextInt(6).toDouble();
         gestoNum?.value=g;
         visemaNum?.value=-1;
-        print("random: "+gestoNum!.value.toString());
+        //print("random: "+gestoNum!.value.toString());
         miradaNum?.value=-1;
         await Future.delayed(const Duration(milliseconds: 2000));
         gestoNum?.value=0;
         visemaNum?.value=0;
-        print("random: "+gestoNum!.value.toString());
+        //print("random: "+gestoNum!.value.toString());
         miradaNum?.value=-1;
         _reiniciarContador();
       }
@@ -105,6 +105,7 @@ class _HomePageState extends State<HomePage> {
     flutterTts.setCompletionHandler(() {
       setState(() {
         ttsState = TTSState.stopped;
+        _reiniciarContador();
       });
     });
     //_getAvailableVoices();
@@ -158,62 +159,79 @@ class _HomePageState extends State<HomePage> {
             const SizedBox(height: 35),
             Expanded(
                 flex: 2,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.blueGrey[900],
-                    border: Border.all(
-                      color: Colors.orangeAccent, // Color del borde
-                      width: 8.0, // Ancho del borde
+                child: Stack(
+                  children: <Widget>[Container(
+                    decoration: BoxDecoration(
+                      color: Colors.blueGrey[900],
+                      border: Border.all(
+                        color: Colors.orangeAccent, // Color del borde
+                        width: 8.0, // Ancho del borde
+                      ),
+                      borderRadius: BorderRadius.circular(25),
                     ),
-                    borderRadius: BorderRadius.circular(25),
-                  ),
-                  child: GestureDetector(
-                    onHorizontalDragEnd: (details) {
-                      // Calcula la diferencia horizontal
-                      double deltaX = details.primaryVelocity ?? 0;
+                    child: GestureDetector(
+                      onHorizontalDragEnd: (details) {
 
-                      // Establece un umbral para determinar si es un gesto de desplazamiento a la izquierda o a la derecha
-                      if (deltaX > 0) {
-                        // Desplazamiento hacia la derecha
-                        print('Desplazamiento a la derecha');
-                        _moveToNext();
-                        initRive(caras[caraIndex]);
-                      } else if (deltaX < 0) {
-                        // Desplazamiento hacia la izquierda
-                        print('Desplazamiento a la izquierda');
-                        _moveToPrevious();
-                        initRive(caras[caraIndex]);
-                      }
-                      switch (caraIndex) {
-                        case 0:
-                          setVoiceRubia();
-                          break; // The switch statement must be told to exit, or it will execute every case.
-                        case 1:
-                          setVoiceNene();
-                          break;
-                        case 2:
-                          setVoicePelota();
-                          break;
-                        default:
-                          setVoiceMujer();
-                      }
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Colors
-                              .black54, // Color del segundo borde (doble borde)
-                          width: 8, // Ancho del segundo borde
+                        // Calcula la diferencia horizontal
+                        double deltaX = details.primaryVelocity ?? 0;
+
+                        // Establece un umbral para determinar si es un gesto de desplazamiento a la izquierda o a la derecha
+                        if (deltaX > 0) {
+                          // Desplazamiento hacia la derecha
+                          print('Desplazamiento a la derecha');
+                          _moveToNext();
+                          initRive(caras[caraIndex]);
+                        } else if (deltaX < 0) {
+                          // Desplazamiento hacia la izquierda
+                          print('Desplazamiento a la izquierda');
+                          _moveToPrevious();
+                          initRive(caras[caraIndex]);
+                        }
+                        switch (caraIndex) {
+                          case 0:
+                            setVoiceRubia();
+                            nombre="Samanta";
+                            break; // The switch statement must be told to exit, or it will execute every case.
+                          case 1:
+                            nombre="Juan";
+                            setVoiceNene();
+                            break;
+                          case 2:
+                            nombre="Wilson";
+                            setVoicePelota();
+                            break;
+                          default:
+                            nombre="Frida";
+                            setVoiceMujer();
+                        }
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: Colors
+                                .black54, // Color del segundo borde (doble borde)
+                            width: 8, // Ancho del segundo borde
+                          ),
+                          borderRadius: BorderRadius.circular(15),
                         ),
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      child: Center(
-                        child: riveArtboard != null
-                            ? Rive(artboard: riveArtboard!)
-                            : CircularProgressIndicator(),
+                        child: Center(
+                          child: riveArtboard != null
+                              ? Rive(artboard: riveArtboard!)
+                              : CircularProgressIndicator(),
+                        ),
                       ),
                     ),
-                  ),
+                  ),Positioned(
+                    bottom: 30, // Posiciona el Text a 10px del borde inferior
+                    right: 30, // Posiciona el Text a 10px del borde derecho
+                    child: Text(
+                      nombre,
+                      style: TextStyle(
+                        color: Colors.white, // Color del texto
+                        fontSize: 24, // Tamaño de la fuente del texto
+                      ),
+                    ),
+                  )],
                 )),
             Expanded(
                 flex: 1,
@@ -233,7 +251,8 @@ class _HomePageState extends State<HomePage> {
                             txt: mensajes[index].mensaje,
                             callback: updateTextField,
                           )
-                        : DialogRtaCard(txt: mensajes[index].mensaje);
+                        : DialogRtaCard(txt: mensajes[index].mensaje,
+                      callback: updateTextField,);
                   },
                 )),
             Align(
@@ -271,23 +290,62 @@ class _HomePageState extends State<HomePage> {
                                     interactiveMode = value;
                                   });
                                 }),
-                            suffixIcon: IconButton(
-                              icon: const Icon(Icons.attach_file),
-                              onPressed: () async {
-                                // Verificar si el permiso ya fue concedido
-                                // var status = await Permission
-                                //     .manageExternalStorage.status;
-                                // if (status.isGranted) {
-                                //   // El permiso ya fue concedido, puedes abrir el explorador de archivos
-                                //   _openFileExplorer();
-                                // } else {
-                                //   // El usuario no concedió el permiso, puedes mostrar un mensaje o realizar alguna acción adicional
-                                //   print(
-                                //       'El usuario no concedió el permiso de almacenamiento.');
-                                // }
-                                fileContent = await rootBundle
-                                    .loadString('assets/textos/3cerditos.txt');
-                                cargaTXT(fileContent);
+                            suffixIcon: PopupMenuButton(
+
+                                icon: const Icon(Icons.attach_file),
+                                itemBuilder: (context) => [
+                              PopupMenuItem(
+                                child: Text("Los Tres cerditos"),
+                                value: 1,
+                              ),
+                              PopupMenuItem(
+                                child: Text("Poema"),
+                                value: 2,
+                              ),
+                              PopupMenuItem(
+                                child: Text("Presentación"),
+                                value: 3,
+                              ),
+                            ],
+                              onSelected: (value) async {
+                                // Manejar la selección del usuario
+                                switch (value) {
+                                  case 1:
+                                  fileContent = await rootBundle
+                                      .loadString('assets/textos/3cerditos.txt');
+                                  //cargaTXT(fileContent);
+                                  updateTextField(fileContent);
+                                    break;
+                                  case 2:
+                                    updateTextField(poema);
+                                  // Acción para la opción 2
+                                    break;
+                                  case 3:
+                                    switch(caraIndex){
+                                      case 0:
+                                        fileContent = await rootBundle
+                                            .loadString('assets/textos/Samu.txt');
+                                        //cargaTXT(fileContent);
+                                        updateTextField(fileContent);
+                                      case 1:
+                                        fileContent = await rootBundle
+                                            .loadString('assets/textos/Juan.txt');
+                                        //cargaTXT(fileContent);
+                                        updateTextField(fileContent);
+                                      case 2:
+                                        fileContent = await rootBundle
+                                            .loadString('assets/textos/Wilson.txt');
+                                        //cargaTXT(fileContent);
+                                        updateTextField(fileContent);
+                                      case 3:
+                                        fileContent = await rootBundle
+                                            .loadString('assets/textos/Frida.txt');
+                                        //cargaTXT(fileContent);
+                                        updateTextField(fileContent);
+                                    }
+                                  // Acción para la opción 3
+                                    break;
+                                }
                               },
                             )),
                       ),
@@ -314,7 +372,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                       child: CircleAvatar(
-                        backgroundColor: Colors.blueGrey[900], //
+                        backgroundColor: Colors.blueGrey[800], //
                         radius: 22,
                         child: IconButton(
                           //boton para hablar
@@ -340,7 +398,11 @@ class _HomePageState extends State<HomePage> {
                                   fragmentarTexto(texto);
                                 }
                               }
+                            } else {if (ttsState == TTSState.playing) {
+                              moverBoca=false;
+                              _stop();
                             } else {
+                              moverBoca=true;
                               if (controller.text.isNotEmpty) {
                                 // print('modo interactivo, el texto tiene $texto');
                                 // var res = await sendTextCompletionRequest(texto);
@@ -368,6 +430,7 @@ class _HomePageState extends State<HomePage> {
                                 await setMensaje("recibido", rta);
                               }
                             }
+                            }
                           },
                         ),
                       ),
@@ -384,7 +447,7 @@ class _HomePageState extends State<HomePage> {
 
   String eliminarSimbolos(String texto) {
     // Expresión regular que busca los símbolos a eliminar.
-    final RegExp simbolosAEliminar = RegExp(r'[*\@\#\$%\^\&]');
+    final RegExp simbolosAEliminar = RegExp(r'[*@#$%^&"()]');
 
     // Reemplaza todos los símbolos con una cadena vacía.
     return texto.replaceAll(simbolosAEliminar, '');
@@ -405,7 +468,6 @@ class _HomePageState extends State<HomePage> {
       // Se la selección de archivos.
     }
   }
-
   void cargaTXT(String fileContent) {
     showModalBottomSheet(
       shape: const RoundedRectangleBorder(
@@ -464,7 +526,14 @@ class _HomePageState extends State<HomePage> {
                                   : Icons.record_voice_over,
                               color: Colors.white),
                           onPressed: () {
-                            fragmentarTexto(fileContent);
+                            if (ttsState == TTSState.playing) {
+                              moverBoca=false;
+                              _stop();
+                            }else{
+                              moverBoca=true;
+                              _reiniciarContador();
+                              fragmentarTexto(fileContent);
+                            }
                           },
                         ),
                       ),
@@ -521,7 +590,7 @@ class _HomePageState extends State<HomePage> {
         esperaVisemas = 0;
       } else {
         if (caraIndex == 1 || caraIndex == 2) {
-          esperaVisemas = 57;
+          esperaVisemas = 65;
         } else {
           esperaVisemas = 65;
         }
@@ -585,6 +654,7 @@ class _HomePageState extends State<HomePage> {
         if (proximoTexto.isNotEmpty) {
           Emocion emocionProximoTexto =
               analizarSentimiento(proximoTexto.trim());
+          print("emocion del proximo texto es: "+emocionProximoTexto.toString());
           gestoNum?.value = asignarValorEmocion(emocionProximoTexto);
         }
       }
@@ -600,6 +670,7 @@ class _HomePageState extends State<HomePage> {
     String txtSSML = convertToSSML(txt); //se prepara el texto para el tts
     String txtLimpio =
         "${limpiaTexto(txt)}."; //se prepara el texto para el ttv (text to visem)
+
     recorrerTextoSSML(txtLimpio);
     //await flutterTts.speak(txtSSML);
     await _speak(txtSSML);
@@ -636,8 +707,9 @@ class _HomePageState extends State<HomePage> {
 // y luego con el arreglo de textos invocar a recorrerArregloDeStrings
 //donde ahi dentro recien llamar a hablaSSML
   fragmentarTexto(String texto) {
-    textoDividido = splitPorPunto(texto);
-    print('el texto dividido es' + textoDividido.toString());
+    textoDividido = splitPorPunto(" \n "+texto);
+    //print('el texto dividido es' + textoDividido.toString());
+    textoDividido.first=".${textoDividido.first}";
     recorrerArregloDeStrings(textoDividido);
   }
 

@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
-
+String API_KEY="AIzaSyB_QHYZlwisywsFDa2oyFMRHaFu-eE5XuU";
 class GeminiAPI {
   static Future<Map<String, String>> getHeader() async {
     return {
@@ -17,18 +17,18 @@ class GeminiAPI {
           {
             'parts': [
               {
-                'text': 'mensaje: $mensaje, no superes la cantidad de tokens',
+                'text': 'mensaje: $mensaje',
               }
             ]
           }
         ],
         'generationConfig': {
-          'temperature': 0.2, // it may vary from 0 to 1
-          'maxOutputTokens': 200 //its the max tokens to generate result
+          'temperature': 0.3,
+          'maxOutputTokens': 500
         }
       };
       String url =
-          'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.0-pro:generateContent?key=';
+          'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.0-pro:generateContent?key=${API_KEY}';
       var response = await http.post(
         Uri.parse(url),
         headers: header,
