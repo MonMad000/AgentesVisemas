@@ -181,7 +181,8 @@ int charToVisema(String C) {
 }
 
 dynamic splitPorPunto(String texto) {
-  var arr = texto.split(RegExp(r'([\n.;¿¡,])'));
+  var arr = texto.split(RegExp(r'([\n.;¿¡!,])'));
+
   return arr;
 }
 String numeroEnPalabras(int numero) {

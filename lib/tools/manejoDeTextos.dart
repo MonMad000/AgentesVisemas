@@ -2,18 +2,14 @@ import 'funciones.dart';
 
 String convertToSSML(String text) {
   // Expresión regular para los signos de puntuación que agregarán pausas
-  final punctuationRegex = RegExp(r'[.,;?!:\-\n]');
+  final punctuationRegex = RegExp(r'[?:\-]');
 
   // Pausas para cada tipo de signo de puntuación
   final pauseDurations = {
-    '.': '500ms',
-    ',': '300ms',
-    ';': '400ms',
+
     '?': '800ms',
-    '!': '800ms',
     ':': '400ms',
-    '-': '200ms',
-    '\n': '500ms'
+    '-': '200ms'
   };
 
   // Reemplazar signos de puntuación y saltos de línea con SSML que incluye pausas
@@ -141,7 +137,7 @@ Map<Emocion, List<String>> palabrasClave = {
     'apasionada', 'pasión', 'pasional', 'apasionadamente', 'pasión', 'apasionada',
     'compartido', 'compartir', 'compartir', 'compartible', 'compartir', 'compartida'],
   Emocion.Enojo: ['enojo','furia', 'furioso', 'furiosa', 'furiosamente', 'enfurecer', 'enfurecido', 'enfurecida', 'enfurecimiento',
-    'ira', 'iracundo', 'iracunda', 'iracundia', 'iracundamente', 'encolerizar', 'encolerizado', 'encolerizada', 'encolerizarse',
+     'iracundo', 'iracunda', 'iracundia', 'iracundamente', 'encolerizar', 'encolerizado', 'encolerizada', 'encolerizarse',
     'rabia', 'rabioso', 'rabiosa', 'rabiosamente', 'rabiar', 'rabietas', 'rabiosidad',
     'enfado', 'enojado', 'enojada', 'enojarse', 'enojarse', 'enfadarse', 'enfadadizo', 'enfadadiza',
     'hostilidad', 'hostil', 'hostilmente', 'hostilizar', 'hostilidad',
@@ -232,7 +228,6 @@ Map<Emocion, List<String>> palabrasClave = {
     'pena', 'penoso', 'penosa', 'penosos', 'penosas', 'penalidades',
     'tristeza', 'triste', 'tristes', 'tristemente',
     'lágrimas', 'llanto', 'llorar', 'llorando', 'lloraba', 'lloraron', 'llorará', 'lloraré', 'llorarás', 'lloramos', 'lloráis', 'lloraban', 'llorarán', 'lloraría', 'llorarías', 'lloraríamos', 'lloraríais', 'llorarían',
-
     'abatimiento', 'abatido', 'abatida', 'abatidos', 'abatidas', 'abatimientos',
     'congoja', 'congojoso', 'congojosa', 'congojosos', 'congojosas', 'congojas',
     'vergüenza', 'vergonzoso', 'vergonzosa', 'vergonzosos', 'vergonzosas', 'vergüenzas',
@@ -284,7 +279,7 @@ Map<Emocion, List<String>> palabrasClave = {
     'grotesco', 'grotescos', 'grotesca', 'grotescas'
   ],
   Emocion.MiedoInseguridad: [
-    'miedo','miedoso','miedosa','miedosos','miedosas',
+    'miedo','miedoso','miedosa','miedosos','miedosas','miedo'
     'terror', 'terrorífico', 'terrorífica','terror',
     'pánico', 'pánicos', 'pánica', 'pánicas', 'pánicosamente', 'pánicogénico', 'pánicogenia',
     'angustia', 'angustioso', 'angustiosa', 'angustias', 'angustiado', 'angustiada', 'angustiadamente',

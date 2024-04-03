@@ -1,6 +1,5 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:ffi';
+import 'dart:core';
 import 'dart:io';
 import 'dart:math';
 
@@ -9,7 +8,6 @@ import 'package:agentes2d/GUI/DialogRtaCard.dart';
 import 'package:agentes2d/tools/MensajeModelo.dart';
 import 'package:agentes2d/tools/gemini_api.dart';
 import 'package:agentes2d/tools/globales.dart';
-import 'package:agentes2d/tools/openai_services.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -162,7 +160,7 @@ class _HomePageState extends State<HomePage> {
                 child: Stack(
                   children: <Widget>[Container(
                     decoration: BoxDecoration(
-                      color: Colors.blueGrey[900],
+                      color: caraIndex==3?Colors.white:Colors.blueGrey[900],
                       border: Border.all(
                         color: Colors.orangeAccent, // Color del borde
                         width: 8.0, // Ancho del borde
@@ -227,7 +225,7 @@ class _HomePageState extends State<HomePage> {
                     child: Text(
                       nombre,
                       style: TextStyle(
-                        color: Colors.white, // Color del texto
+                        color: caraIndex==3?Colors.black:Colors.white, // Color del texto
                         fontSize: 24, // Tamaño de la fuente del texto
                       ),
                     ),
@@ -317,7 +315,10 @@ class _HomePageState extends State<HomePage> {
                                   updateTextField(fileContent);
                                     break;
                                   case 2:
-                                    updateTextField(poema);
+                                    fileContent = await rootBundle
+                                        .loadString('assets/textos/Poema.txt');
+                                    //cargaTXT(fileContent);
+                                    updateTextField(fileContent);
                                   // Acción para la opción 2
                                     break;
                                   case 3:
@@ -707,9 +708,9 @@ class _HomePageState extends State<HomePage> {
 // y luego con el arreglo de textos invocar a recorrerArregloDeStrings
 //donde ahi dentro recien llamar a hablaSSML
   fragmentarTexto(String texto) {
-    textoDividido = splitPorPunto(" \n "+texto);
+    textoDividido = splitPorPunto(texto);
     //print('el texto dividido es' + textoDividido.toString());
-    textoDividido.first=".${textoDividido.first}";
+    textoDividido.first=" ${textoDividido.first}";
     recorrerArregloDeStrings(textoDividido);
   }
 
