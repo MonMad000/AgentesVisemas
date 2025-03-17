@@ -374,14 +374,14 @@ Emocion analizarSentimiento(String texto) {
   texto = texto.toLowerCase();
 
   palabrasClave.forEach((emocion, palabras) {
-    palabras.forEach((palabra) {
+    for (var palabra in palabras) {
       if (texto.contains(palabra)) {
         emocionesContador[emocion] = emocionesContador[emocion]! + 1;
         print("palabra clave $palabra");
-        print("emocion"+emocion.toString());
-        print("emocionesContador[emocion]) "+ emocionesContador[emocion].toString());
+        print("emocion$emocion");
+        print("emocionesContador[emocion]) ${emocionesContador[emocion]}");
       }
-    });
+    }
   });
 
   // Encontrar la emoción predominante

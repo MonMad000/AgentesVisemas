@@ -28,7 +28,7 @@ Future sendTextCompletionRequest(String message) async {
     return jsonDecode(res.body);
   } else {
     print(res.body);
-    print("ERROR " +res.statusCode.toString());
+    print("ERROR ${res.statusCode}");
   }
 
 }

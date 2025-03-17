@@ -21,12 +21,12 @@ class DialogRtaCard extends StatelessWidget {
             color: Colors.grey[900],
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
 
-            margin: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+            margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
             child: Padding(
-              padding: EdgeInsets.fromLTRB(10, 7, 10,7),
+              padding: const EdgeInsets.fromLTRB(10, 7, 10,7),
               child: Text(
                 txt,
-                style: TextStyle(
+                style: const TextStyle(
                   fontFamily: "Courier Prime",
                     fontSize: 16,
                 color: Colors.white),

@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:core';
-import 'dart:io';
 import 'dart:math';
 
 import 'package:agentes2d/GUI/DialogCard.dart';
@@ -8,7 +7,6 @@ import 'package:agentes2d/GUI/DialogRtaCard.dart';
 import 'package:agentes2d/tools/MensajeModelo.dart';
 import 'package:agentes2d/tools/gemini_api.dart';
 import 'package:agentes2d/tools/globales.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_tts/flutter_tts.dart';
@@ -16,7 +14,6 @@ import 'package:rive/rive.dart';
 
 import '../tools/funciones.dart';
 import '../tools/manejoDeTextos.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 class MainScreen extends StatelessWidget {
   const MainScreen({super.key});
@@ -46,7 +43,7 @@ class _HomePageState extends State<HomePage> {
 
   //############### FUNCIONES DE INICIALIZACION##############
   void _iniciarContador() {
-    timer = Timer.periodic(Duration(seconds: 1), (timer) {
+    timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
         segundos++;
       });
@@ -60,7 +57,8 @@ class _HomePageState extends State<HomePage> {
   }
   @override
   void initState() {
-    final Random _random = Random();
+    printLanguages();
+    final Random random = Random();
 
     //se llama cuando este objeto se agrega al árbol de widget(en este caso al inicio ya q es la raiz)
     texto = "";
@@ -76,7 +74,7 @@ class _HomePageState extends State<HomePage> {
       //print(segundos);
       if (segundos>10&&ttsState!=TTSState.playing){
         //print("estuve 10 seg sin hablar");
-        double g=_random.nextInt(6).toDouble();
+        double g=random.nextInt(6).toDouble();
         gestoNum?.value=g;
         visemaNum?.value=-1;
         //print("random: "+gestoNum!.value.toString());
@@ -215,7 +213,7 @@ class _HomePageState extends State<HomePage> {
                         child: Center(
                           child: riveArtboard != null
                               ? Rive(artboard: riveArtboard!)
-                              : CircularProgressIndicator(),
+                              : const CircularProgressIndicator(),
                         ),
                       ),
                     ),
@@ -292,17 +290,17 @@ class _HomePageState extends State<HomePage> {
 
                                 icon: const Icon(Icons.attach_file),
                                 itemBuilder: (context) => [
-                              PopupMenuItem(
-                                child: Text("Los Tres cerditos"),
+                              const PopupMenuItem(
                                 value: 1,
+                                child: Text("Los Tres cerditos"),
                               ),
-                              PopupMenuItem(
-                                child: Text("Poema"),
+                              const PopupMenuItem(
                                 value: 2,
+                                child: Text("Poema"),
                               ),
-                              PopupMenuItem(
-                                child: Text("Presentación"),
+                              const PopupMenuItem(
                                 value: 3,
+                                child: Text("Presentación"),
                               ),
                             ],
                               onSelected: (value) async {
@@ -454,21 +452,21 @@ class _HomePageState extends State<HomePage> {
     return texto.replaceAll(simbolosAEliminar, '');
   }
 
-  void _openFileExplorer() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['txt'],
-    );
-    if (result != null) {
-      final path = result.files.single.path;
-      final file = File(path!);
-
-      fileContent = await file.readAsString();
-      cargaTXT(fileContent);
-    } else {
-      // Se la selección de archivos.
-    }
-  }
+  // void _openFileExplorer() async {
+  //   FilePickerResult? result = await FilePicker.platform.pickFiles(
+  //     type: FileType.custom,
+  //     allowedExtensions: ['txt'],
+  //   );
+  //   if (result != null) {
+  //     final path = result.files.single.path;
+  //     final file = File(path!);
+  //
+  //     fileContent = await file.readAsString();
+  //     cargaTXT(fileContent);
+  //   } else {
+  //     // Se la selección de archivos.
+  //   }
+  // }
   void cargaTXT(String fileContent) {
     showModalBottomSheet(
       shape: const RoundedRectangleBorder(
@@ -482,7 +480,7 @@ class _HomePageState extends State<HomePage> {
       backgroundColor: Colors.white,
       context: context,
       builder: (context) {
-        return Container(
+        return SizedBox(
           height: MediaQuery.of(context).size.height * 0.5 - 55,
           child: Stack(
             children: [
@@ -655,7 +653,7 @@ class _HomePageState extends State<HomePage> {
         if (proximoTexto.isNotEmpty) {
           Emocion emocionProximoTexto =
               analizarSentimiento(proximoTexto.trim());
-          print("emocion del proximo texto es: "+emocionProximoTexto.toString());
+          print("emocion del proximo texto es: $emocionProximoTexto");
           gestoNum?.value = asignarValorEmocion(emocionProximoTexto);
         }
       }
@@ -682,9 +680,9 @@ class _HomePageState extends State<HomePage> {
   void printLanguages() async {
     List<dynamic> languages = await flutterTts.getVoices;
     print("engines soportados:");
-    languages.forEach((language) {
+    for (var language in languages) {
       print(language);
-    });
+    }
   }
 
   void updateTextField(String newText) {
@@ -716,8 +714,9 @@ class _HomePageState extends State<HomePage> {
 
   recorrerArregloDeStrings(List<String> textoCompleto) async {
     for (int i = 0; i < textoCompleto.length; i++) {
-      if(moverBoca)
-      await hablaSSML(textoCompleto[i]);
+      if(moverBoca) {
+        await hablaSSML(textoCompleto[i]);
+      }
     }
   }
 
@@ -756,9 +755,9 @@ class _HomePageState extends State<HomePage> {
       });
     }
     print('Voice Maps:');
-    voiceMaps.forEach((voiceMap) {
+    for (var voiceMap in voiceMaps) {
       print('name: ${voiceMap['name']}, locale: ${voiceMap['locale']}');
-    });
+    }
   }
 
   Future<void> _speak(String text) async {

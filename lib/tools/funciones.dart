@@ -22,7 +22,7 @@ String limpiaTexto(String texto) {
       }
       //cambio qu por k
       if (i - 1 >= 0 && texto[i - 1] == 'q' && texto[i] == 'u') {
-        texto = texto.substring(0, i - 1) + 'k' + texto.substring(i + 1);
+        texto = '${texto.substring(0, i - 1)}k${texto.substring(i + 1)}';
       }
       //cambio qu por k
       if (texto[i - 1] == 'q') {
@@ -186,18 +186,18 @@ dynamic splitPorPunto(String texto) {
   return arr;
 }
 String numeroEnPalabras(int numero) {
-  final _unidades = [
+  final unidades = [
     'cero', 'uno', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho',
     'nueve', 'diez', 'once', 'doce', 'trece', 'catorce', 'quince', 'dieciséis',
     'diecisiete', 'dieciocho', 'diecinueve'
   ];
 
-  final _decenas = [
+  final decenas = [
     '', '', 'veinte', 'treinta', 'cuarenta', 'cincuenta', 'sesenta', 'setenta',
     'ochenta', 'noventa'
   ];
 
-  final _centenas = [
+  final centenas = [
     '', 'ciento', 'doscientos', 'trescientos', 'cuatrocientos', 'quinientos',
     'seiscientos', 'setecientos', 'ochocientos', 'novecientos'
   ];
@@ -211,14 +211,14 @@ String numeroEnPalabras(int numero) {
   }
 
   if (numero < 20) {
-    return _unidades[numero];
+    return unidades[numero];
   }
 
   if (numero < 100) {
-    var decena = _decenas[numero ~/ 10];
+    var decena = decenas[numero ~/ 10];
     var unidad = numero % 10;
     if (unidad > 0) {
-      return '$decena y ${_unidades[unidad]}';
+      return '$decena y ${unidades[unidad]}';
     } else {
       return decena;
     }
@@ -227,7 +227,7 @@ String numeroEnPalabras(int numero) {
     return 'cien';
   }
   if (numero < 1000) {
-    var centena = _centenas[numero ~/ 100];
+    var centena = centenas[numero ~/ 100];
     var decena = numeroEnPalabras(numero % 100);
     if (decena == 'cero') {
       return centena;
@@ -265,22 +265,22 @@ String remplazarNumerosEnPalabras(String texto) {
 // ################# FUNCIONES AUXILIARES###################
 Future<void> setVoiceNene () async {
   await flutterTts.awaitSpeakCompletion(true);
-  await flutterTts.setVoice(voiceMaps[6]);
+  await flutterTts.setVoice(chosenVoices[2]);
   await flutterTts.setPitch(1.65);
 }
 Future<void> setVoiceRubia () async {
   await flutterTts.awaitSpeakCompletion(true);
-  await flutterTts.setVoice(voiceMaps[4]);
+  await flutterTts.setVoice(chosenVoices[3]);
   await flutterTts.setPitch(1.2);
 }
 Future<void> setVoiceMujer () async {
   await flutterTts.awaitSpeakCompletion(true);
-  await flutterTts.setVoice(voiceMaps[2]);
+  await flutterTts.setVoice(chosenVoices[0]);
   await flutterTts.setPitch(0.9);
 }
 Future<void> setVoicePelota () async {
   await flutterTts.awaitSpeakCompletion(true);
-  await flutterTts.setVoice(voiceMaps[5]);
+  await flutterTts.setVoice(chosenVoices[1]);
   await flutterTts.setPitch(1);
 }
 

@@ -19,14 +19,14 @@ class DialogCard extends StatelessWidget {
           child: Card(
 
             elevation: 2,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15), side: BorderSide(color: Colors.black87, width: 1.0)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15), side: const BorderSide(color: Colors.black87, width: 1.0)),
             color: Colors.white,
-            margin: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+            margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
             child: Padding(
-              padding: EdgeInsets.fromLTRB(8, 4, 8, 4),
+              padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
               child: Text(
                 txt,
-                style: TextStyle(fontSize: 16),
+                style: const TextStyle(fontSize: 16),
               ),
             ),
           ),

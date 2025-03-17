@@ -28,7 +28,6 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
-  file_picker: ^4.0.0
   flutter:
     sdk: flutter
 
@@ -42,6 +41,7 @@ dependencies:
   permission_handler: ^11.0.1
   flutter_gemini: ^2.0.3
 
+  http: any
 dev_dependencies:
   flutter_test:
     sdk: flutter

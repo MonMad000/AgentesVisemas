@@ -37,9 +37,23 @@ List<Map<String, String>> voiceMaps = [
   {"name": "es-US-language", "locale": "es-US"},//1//hombre LA
   {"name": "es-us-x-esc-network", "locale": "es-US"},//2 mujer LA
   {"name": "es-us-x-esf-local", "locale": "es-US"},//3 h la
-  {"name": "es-us-x-esc-local", "locale": "es-US"},//4 m la
-  {"name": "es-us-x-esf-network", "locale": "es-US"},//5 h la
+  {"name": "es-us-x-esc-local", "locale": "es-US"},//4 m la rubia(anda bien)
+  {"name": "es-us-x-esf-network", "locale": "es-US"},//5 h la pelota
   {"name": "es-us-x-esd-network", "locale": "es-US"},//6 h la nene
+  {"name": "es-es-x-eee-local", "locale": "es-ES"},//7
+  {"name": "es-es-x-eef-local", "locale": "es-ES"},//8
+  {"name": "es-us-x-esd-local", "locale": "es-US"},//9
+  {"name": "es-us-x-esc-local", "locale": "es-US"},//10
+  {"name": "es-es-x-eea-local", "locale": "es-ES"},//11
+  {"name": "es-es-x-eed-local", "locale": "es-ES"},//12
+  {"name": "es-ES-language", "locale": "es-ES"},//13
+  {"name": "es-US-language", "locale": "es-US"},//14
+];
+List<Map<String, String>> chosenVoices = [
+  {"name": "es-us-x-esc-local", "locale": "es-US"}, //0// 2 // Mujer LA cálida, reemplazo para la voz femenina cálida.
+  {"name": "es-us-x-esf-local", "locale": "es-US"}, //1// 5 // Hombre LA formal, reemplazo para el "hombre pelota".
+  {"name": "es-us-x-esd-local", "locale": "es-US"}, //2// 6 // Hombre LA juvenil, reemplazo para "hombre la nene".
+  {"name": "es-us-x-esc-local", "locale": "es-US"}, //3// 4 // Mujer LA rubia, ya seleccionada como correcta y funcional.
 ];
 
 String poema = '''
